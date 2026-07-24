@@ -346,20 +346,6 @@ The notebook includes:
 - frequent author-level role bundles using Apriori association mining;
 - corpus totals and average article-level task quantities.
 
-### Main figure outputs
-
-Depending on the executed sections, the notebook writes files such as:
-
-- `{journal}_normalized_tasks_by_domain.png`;
-- `{journal}_pareto_by_domain.png`;
-- `pareto_fit_results_by_domain.csv`;
-- `max_min_task_ratio_by_author_count.png`;
-- `normalized_tasks_by_exact_team_size.png`;
-- `{journal}_team_sizes_by_domain.png`;
-- journal/domain CRediT position figures as PDF and 1200-DPI PNG;
-- `credit_categories_by_journal.png`;
-- journal-specific heatmaps as PDF and 1200-DPI PNG.
-
 This notebook transforms the pipeline outputs into the statistical summaries and visual evidence reported in the article. It also centralizes the duplicate-selection logic and author-position normalization used across analyses.
 
 ---
