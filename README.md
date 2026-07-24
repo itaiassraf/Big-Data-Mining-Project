@@ -1,4 +1,4 @@
-# H-Contrib: Extraction, Normalization, and Analysis of Author Contribution Statements
+# Behind the Byline: A Large-Scale Study of Scientific Author Contributions 
 
 ## Overview
 
