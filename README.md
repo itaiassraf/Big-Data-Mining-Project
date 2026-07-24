@@ -80,18 +80,6 @@ PLOS article records are enriched with OpenAlex metadata, including:
 
 Matching is performed by normalized title and publication year. Exact matches are attempted first; unmatched records are optionally processed with fuzzy title matching using a high cutoff.
 
-### Manually verified few-shot examples
-
-The semantic classification layer uses labeled contribution examples with at least two fields:
-
-| Column | Meaning |
-|---|---|
-| `category` | Canonical CRediT category. |
-| `example` | Verified contribution phrase assigned to that category. |
-| `occurrence_count` | Optional frequency used as a centroid weight. |
-
-These examples are used only for contribution actions that remain unresolved after the deterministic rule stages.
-
 ---
 
 ## Units of analysis
@@ -146,26 +134,6 @@ This notebook creates the initial article-level datasets used by the rest of the
 - Adds topic, subfield, field, domain, DOI, and match diagnostics.
 - Saves both CSV and Parquet versions.
 
-### Principal inputs
-
-| Input | Description |
-|---|---|
-| Nature topic list and journal name | Used when collecting Nature-family article pages. |
-| Nature JSON folders | Article metadata, contribution paragraphs, URLs, and author arrays. |
-| `allofplos.zip` | PLOS XML corpus. |
-| OpenAlex API key or local Parquet cache | Used for subject classification and article identifiers. |
-
-### Principal outputs
-
-| Output | Description |
-|---|---|
-| `plosone.json` | Extracted PLOS article metadata in JSON form. |
-| `contribution_df.csv` | PLOS free-text contribution records. |
-| `roles_df_correction.csv` | PLOS records with structured author roles. |
-| `df_with_openalex_fields.csv` / `.parquet` | Free-text PLOS contribution records enriched with OpenAlex metadata. |
-| `roles_df_with_fields.csv` / `.parquet` | Structured-role PLOS records enriched with OpenAlex metadata. |
-| `*_updated.json` | Nature JSON files augmented with extracted full author lists. |
-| `*_authors_errors.json` and extraction summaries | Failed requests or articles requiring review. |
 
 ### Contribution to the study
 
@@ -236,35 +204,7 @@ For each contribution paragraph:
 
 Commas are not treated as automatic task boundaries. Multi-action and multi-role interpretation is handled downstream in the CRediT-classification notebook.
 
-### Principal inputs
 
-| Input | Description |
-|---|---|
-| `df_with_openalex_fields_authors_tasks_fully_fixed.zip` | PLOS contribution records with article metadata, author groups, and full names. |
-| Nature JSON folders | Nature article metadata, full names, and complete contribution text. |
-
-### PLOS mapping outputs
-
-| Output | Description |
-|---|---|
-| `full_name_initials_mapping.csv` | One row per unique full name, including original index/indices and all mapped initials. |
-| `unique_initials_mapping.csv` | One row per unique observed initial, with mapping status and candidate information. |
-| `article_mapping_summary.csv` | Article-level mapping counts and completeness indicators. |
-| `initials_mapping_failures.csv` | Only ambiguous or unmapped initials. |
-| `mapping_summary.json` | Corpus-level mapping counts, success rates, rule counts, and examples. |
-
-### Nature mapping outputs
-
-| Output | Description |
-|---|---|
-| `nature_raw_author_task_assignments_all_articles.csv` | One row per raw author–task assignment. |
-| `nature_author_task_mapping_all_articles.csv` | One aggregated row per article–author. |
-| `nature_alias_conflicts_all_articles.csv` | Alias collisions or unresolved candidates. |
-| `nature_article_summary_all_articles.csv` | Extraction completeness and review status by article. |
-| `*_unique_articles.csv` | Duplicate-reduced versions based on normalized titles. |
-| `nature_processing_errors.csv` | Exceptions encountered during corpus processing. |
-| `nature_run_summary.json` | Overall processing and quality-control summary. |
-| `nature_author_task_mapping_unique_articles_advanced_task_aligned.csv` | Post-processed mapping with tasks realigned after alias corrections. |
 
 ### Contribution to the study
 
@@ -272,7 +212,7 @@ This notebook is the link between article-level disclosure text and individual a
 
 ---
 
-## 3. `credit_assignment_rules_and_fewshot (1).ipynb`
+## 3. `credit_assignment_rules_and_fewshot.ipynb`
 
 ### Purpose
 
@@ -343,43 +283,6 @@ Only unresolved atomic actions are processed semantically.
 
 The few-shot layer does not overwrite deterministic assignments.
 
-### Principal inputs
-
-| Input | Description |
-|---|---|
-| `nature_author_task_mapping_all_articles_unique.csv` or equivalent mapping CSV | Nature author rows containing extracted `tasks`. |
-| Verified example table | Category–example pairs used to construct role centroids. |
-| `df_with_openalex_fields.zip` | PLOS free-text contribution data processed with the same classifier. |
-| `credit_centroid_model.zip` | Saved semantic model package for reproducible reuse. |
-
-### Nature classification outputs
-
-| Output | Description |
-|---|---|
-| `mapping_credit_final.csv` | Final author-level results. |
-| `tasks_credit_final.csv` | One row per original author–task pair with final roles. |
-| `actions_credit_final.csv` | One row per atomic action with rule or few-shot assignment. |
-| `few_shot_predictions.csv` | Similarity scores, margins, thresholds, and nearest-example diagnostics. |
-
-### Saved semantic model package
-
-`credit_centroid_model.zip` contains:
-
-- `centroids_and_embeddings.npz`;
-- `credit_examples_by_category.csv`;
-- `roles.json`;
-- `role_example_indices.json`;
-- `few_shot_role_thresholds.json`;
-- `config.json`;
-- the saved SentenceTransformer directory.
-
-### PLOS classification outputs
-
-| Output | Description |
-|---|---|
-| `plos_one_contribution_credit_rebuilt.csv` | Original PLOS rows plus newly rebuilt CRediT correction columns. |
-| `plos_one_unique_actions_credit_final.csv` | Unique action-level assignments. |
-| `plos_one_few_shot_predictions.csv` | Few-shot audit records for PLOS actions. |
 
 ### Contribution to the study
 
@@ -508,7 +411,6 @@ Each row must represent one author in one article.
 
 ### Models
 
-- Dummy prevalence/majority baseline.
 - One-vs-rest logistic regression with balanced class weights.
 - One-vs-rest XGBoost with fold-specific positive-class weighting.
 
@@ -521,23 +423,10 @@ The notebook reports:
 - F1;
 - average precision;
 - ROC AUC where defined;
-- fixed-0.5 and optimized-threshold comparisons;
+- Category threshold comparisons;
 - micro and macro multi-label metrics;
 - per-role support and prevalence.
 
-### Outputs
-
-| Output | Description |
-|---|---|
-| `overall_model_metrics.csv` | Overall model comparison. |
-| `per_role_model_metrics.csv` | Role-specific precision, recall, F1, support, thresholds, and ranking metrics. |
-| `train_test_prevalence.csv` | Label prevalence comparison across partitions. |
-| `split_manifest.csv` | Auditable article/row partition assignment. |
-| `test_predictions_<model>.csv` | True labels, predicted labels, and role probabilities. |
-| `fitted_models_<model>.joblib` | Saved fitted model family. |
-| `best_parameters_<model>.json` | Selected hyperparameters. |
-| `model_comparison_macro_f1.png` | Publication-ready overall comparison. |
-| `<best_model>_per_role_f1.png` | Role-specific performance figure. |
 
 ### Optional robustness analyses
 
