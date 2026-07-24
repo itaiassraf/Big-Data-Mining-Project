@@ -134,9 +134,6 @@ This notebook creates the initial article-level datasets used by the rest of the
 - Adds topic, subfield, field, domain, DOI, and match diagnostics.
 - Saves both CSV and Parquet versions.
 
-
-### Contribution to the study
-
 This notebook establishes data provenance and creates a common metadata foundation. It separates the two PLOS disclosure formats rather than forcing them into one representation prematurely, and it attaches disciplinary information needed for domain-level analyses.
 
 ---
@@ -204,9 +201,6 @@ For each contribution paragraph:
 
 Commas are not treated as automatic task boundaries. Multi-action and multi-role interpretation is handled downstream in the CRediT-classification notebook.
 
-
-
-### Contribution to the study
 
 This notebook is the link between article-level disclosure text and individual author records. Its diagnostic files make author resolution auditable and prevent uncertain initials from silently contaminating the downstream CRediT analysis.
 
@@ -282,9 +276,6 @@ Only unresolved atomic actions are processed semantically.
 - The output records the top category, top score, second category, score margin, threshold, and nearest example.
 
 The few-shot layer does not overwrite deterministic assignments.
-
-
-### Contribution to the study
 
 This notebook provides the core H-Contrib normalization layer. It combines transparent deterministic evidence with a restricted semantic fallback and retains enough provenance to audit every final assignment.
 
@@ -369,13 +360,11 @@ Depending on the executed sections, the notebook writes files such as:
 - `credit_categories_by_journal.png`;
 - journal-specific heatmaps as PDF and 1200-DPI PNG.
 
-### Contribution to the study
-
 This notebook transforms the pipeline outputs into the statistical summaries and visual evidence reported in the article. It also centralizes the duplicate-selection logic and author-position normalization used across analyses.
 
 ---
 
-## 5. `predict_contribution_categories (1).ipynb`
+## 5. `predict_contribution_categories.ipynb`
 
 ### Purpose
 
@@ -427,20 +416,6 @@ The notebook reports:
 - micro and macro multi-label metrics;
 - per-role support and prevalence.
 
-
-### Optional robustness analyses
-
-The notebook also defines:
-
-- temporal holdout;
-- unseen-journal holdout;
-- unseen-domain holdout.
-
-These are intended as generalization checks rather than replacements for the primary article-level split.
-
-### Contribution to the study
-
-This notebook supports cautious predictive analysis while separating reported contribution norms from causal or verified labor claims. Its split manifest, saved predictions, thresholds, and fitted models make the evaluation independently auditable.
 
 ---
 
